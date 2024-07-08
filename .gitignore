@@ -25,3 +25,4 @@ go.work
 
 pkg/mod
 prk/sumdb
+.env
