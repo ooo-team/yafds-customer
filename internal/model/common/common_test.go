@@ -1,11 +1,15 @@
-package model_test
+package model
 
 import (
 	"log"
+	"testing"
+	// common "github.com/ooo-team/yafds/internal/model/common"
 )
 
-func valid_test() {
-	if !model.valid("DimohaZadira@gmail.com") {
-		log.Panic("false negative")
+func TestValid(t *testing.T) {
+	if !Valid("DimohaZadira@gmail.com") {
+		t.Errorf("false negative")
+	} else {
+		log.Print("zaebis")
 	}
 }

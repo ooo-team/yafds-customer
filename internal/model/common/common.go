@@ -2,7 +2,7 @@ package model
 
 import "net/mail"
 
-func valid(email string) bool {
+func Valid(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
 }
