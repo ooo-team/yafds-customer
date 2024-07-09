@@ -12,4 +12,8 @@ func TestValid(t *testing.T) {
 	} else {
 		log.Print("zaebis")
 	}
+
+	if Valid("Zalupa228") {
+		t.Errorf("false negative")
+	}
 }
