@@ -3,7 +3,6 @@ package model
 import (
 	"log"
 	"testing"
-	// common "github.com/ooo-team/yafds/internal/model/common"
 )
 
 func TestValid(t *testing.T) {
@@ -14,6 +13,6 @@ func TestValid(t *testing.T) {
 	}
 
 	if Valid("Zalupa228") {
-		t.Errorf("false negative")
+		t.Errorf("false positive")
 	}
 }
