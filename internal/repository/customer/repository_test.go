@@ -1,39 +1,30 @@
 package customer
 
 import (
-	"log"
-
 	"context"
 	"testing"
 
-	"github.com/joho/godotenv"
-
-	"github.com/stretchr/testify/assert"
-
 	model "github.com/ooo-team/yafds/internal/model/customer"
-	// common "github.com/ooo-team/yafds/internal/model/common"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetDB(t *testing.T) {
 	assert := assert.New(t)
 	var r repository
 
-	assert.NotNil(r.GetDB(), "zalupa")
+	assert.NotNil(r.GetDB(), "Failed to connect to DB")
 
 }
 
 func TestCreate(t *testing.T) {
+	ctx := context.Background()
 
-	if err := godotenv.Load("/home/dimoha_zadira/yafds/.env"); err != nil {
-		log.Print("No .env file found")
-	}
 	var r repository
-	var ctx context.Context
+	info := model.CustomerInfo{Phone: "+79999999999", Email: "", Address: ""}
 
-	r.Create(ctx, 100, &model.CustomerInfo{
-		Phone:   "+79999999999",
-		Email:   "DimohaZadira@gmail.com",
-		Address: "zalupkina, 24",
-	})
+	err := r.Create(ctx, 100, &info)
+	if err != nil {
+		panic(err.Error())
+	}
 
 }

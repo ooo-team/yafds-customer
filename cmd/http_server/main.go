@@ -1,20 +1,26 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
-	"github.com/joho/godotenv"
+	"github.com/ooo-team/yafds/internal/app"
+	common "github.com/ooo-team/yafds/internal/app/common"
 )
 
-// init is invoked before main()
 func init() {
-	// loads values from .env into the system
-	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found")
-	}
+	common.InitEnv()
 }
 
 func main() {
+
+	ctx := context.Background()
+	a, err := app.NewApp(ctx)
+
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	a.Run()
 	fmt.Println("customer web app")
 }
