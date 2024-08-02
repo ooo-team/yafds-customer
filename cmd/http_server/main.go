@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/ooo-team/yafds/internal/app"
-	common "github.com/ooo-team/yafds/internal/app/common"
+	common "github.com/ooo-team/yafds/pkg"
 )
 
 func init() {

@@ -8,17 +8,12 @@ import (
 )
 
 func (s *service) Get(ctx context.Context, uuid uint32, need_metainfo bool) (*model.Customer, error) {
-	customer_info, err := s.repo.Get(ctx, uuid, need_metainfo)
+	customer_info, err := s.repo.Get(ctx, uuid)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	}
 
-	return &model.Customer{
-		ID:        uuid,
-		Info:      *customer_info,
-		CreatedAt: nil,
-		UpdatedAt: nil,
-	}, nil
+	return customer_info, nil
 
 }

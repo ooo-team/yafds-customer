@@ -10,6 +10,7 @@ import (
 	"time"
 
 	model "github.com/ooo-team/yafds/internal/model/customer"
+	common "github.com/ooo-team/yafds/pkg"
 )
 
 type HttpResponse struct {
@@ -28,27 +29,36 @@ func (a *App) getCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	customerIdStr := r.URL.Query().Get("customer_id")
-	if customerIdStr == "" {
-		http.Error(w, "Missing customer ID", http.StatusBadRequest)
-		return
-	}
+	customer_id_str := common.ReadHeaderParam(w, r, "customer_id", true)
 
-	id, err := strconv.Atoi(customerIdStr)
+	id, err := strconv.Atoi(customer_id_str)
 	if err != nil {
 		http.Error(w, "Invalid customer ID", http.StatusBadRequest)
 		return
 	}
 
+	need_metainfo := false
+	switch need_metainfo_str := common.ReadHeaderParam(w, r, "need_metainfo", false); need_metainfo_str {
+	case "true":
+		need_metainfo = true
+	default:
+		need_metainfo = false
+	}
+
 	ctx := context.Background()
 
-	customer, err := a.serviceProvider.CustomerRepo().Get(ctx, uint32(id), false)
+	customer, err := a.serviceProvider.CustomerRepo().Get(ctx, uint32(id))
 	if err != nil {
 		http.Error(w, "Failed to find customer", http.StatusInternalServerError)
 		return
 	}
 
-	response, err := json.Marshal(customer)
+	var response []byte
+	if need_metainfo {
+		response, err = json.Marshal(customer)
+	} else {
+		response, err = json.Marshal(customer.Info)
+	}
 	if err != nil {
 		http.Error(w, "Error converting results to json", http.StatusInternalServerError)
 		return

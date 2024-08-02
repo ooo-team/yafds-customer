@@ -9,11 +9,11 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	common "github.com/ooo-team/yafds/internal/app/common"
 	model "github.com/ooo-team/yafds/internal/model/customer"
 	def "github.com/ooo-team/yafds/internal/repository"
 	"github.com/ooo-team/yafds/internal/repository/customer/converter"
 	repoModel "github.com/ooo-team/yafds/internal/repository/customer/model"
+	common "github.com/ooo-team/yafds/pkg"
 )
 
 type repository struct {
@@ -105,13 +105,26 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 }
 
 // Get implements repository.CustomerRepository.
-func (r *repository) Get(ctx context.Context, customerID uint32, need_metainfo bool) (*model.CustomerInfo, error) {
+func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Customer, error) {
 
 	rows, err := r.GetDB().QueryContext(ctx,
 		`select c.phone,
 				c.email,
-				c.address
-			from customers c where c.id = $1`, customerID)
+				c.address,
+				hc1.created_at,
+				hc.modified_at
+		   from customers c 
+		   join h_customers hc1 
+			 on hc1.customer_id = c.id
+			and hc1.created_at is not null
+		   join h_customers hc 
+			 on hc.customer_id = c.id
+			and coalesce(hc.modified_at, 
+			             TIMESTAMP '1900-01-01 00:00:00') = (select max(coalesce(hc2.modified_at, TIMESTAMP '1900-01-01 00:00:00'))
+															   from h_customers hc2 
+															  where hc2.customer_id = hc.customer_id)
+
+		  where c.id = $1`, customerID)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -121,20 +134,29 @@ func (r *repository) Get(ctx context.Context, customerID uint32, need_metainfo b
 	var phone string
 	var email string
 	var address string
+	var created_at time.Time
+	var modified_at sql.NullTime
 
 	if !rows.Next() {
-		log.Println("Could not find customer")
-		return nil, &common.NotFoundError{Message: "Could not find customer"}
+		err = &common.NotFoundError{Message: "Could not find customer"}
+		log.Println(err.Error())
+		return nil, err
 	}
 
-	if err := rows.Scan(&phone, &email, &address); err != nil {
+	if err := rows.Scan(&phone, &email, &address, &created_at, &modified_at); err != nil {
 		log.Println(err.Error())
 	}
 
 	info := repoModel.CustomerInfo{Phone: phone, Email: email, Address: address}
 
-	customer_info := converter.ToCustomerInfoFromRepo(info)
-	return &customer_info, nil
+	customer := converter.ToCustomerFromRepo(&repoModel.Customer{
+		ID:        customerID,
+		Info:      info,
+		CreatedAt: created_at,
+		UpdatedAt: modified_at,
+	})
+
+	return customer, nil
 }
 
 var _ def.CustomerRepository = (*repository)(nil)

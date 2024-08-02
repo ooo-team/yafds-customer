@@ -8,5 +8,5 @@ import (
 
 type CustomerRepository interface {
 	Create(ctx context.Context, customerID uint32, info *model.CustomerInfo) error
-	Get(ctx context.Context, customerID uint32, need_metainfo bool) (*model.CustomerInfo, error)
+	Get(ctx context.Context, customerID uint32) (*model.Customer, error)
 }

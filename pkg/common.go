@@ -1,13 +1,24 @@
-package model
+package common
 
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"net/mail"
 	"os"
 
 	"github.com/joho/godotenv"
 )
+
+func ReadHeaderParam(w http.ResponseWriter, r *http.Request, param_name string, required bool) string {
+	param_str := r.URL.Query().Get(param_name)
+	if required && param_str == "" {
+		msg := "Missing required request param" + param_name
+		http.Error(w, msg, http.StatusBadRequest)
+		return ""
+	}
+	return param_str
+}
 
 type NotFoundError struct {
 	Message string
