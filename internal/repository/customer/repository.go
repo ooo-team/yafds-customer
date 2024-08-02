@@ -69,9 +69,11 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		tx.Rollback()
+	}()
 
-	tx.ExecContext(ctx,
+	_, err = tx.ExecContext(ctx,
 		`insert into customers
 		(
 		id,
@@ -86,7 +88,12 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 		repo_entity.Info.Address,
 	)
 
-	tx.ExecContext(ctx,
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx,
 		`insert into h_customers 
 		(
 		customer_id, 
@@ -98,7 +105,13 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 		repo_entity.CreatedAt,
 		repo_entity.UpdatedAt)
 
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+
 	if err = tx.Commit(); err != nil {
+		log.Println(err.Error())
 		return err
 	}
 	return nil
