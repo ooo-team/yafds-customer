@@ -17,8 +17,8 @@ func ToCustomerFromRepo(customer *repoModel.Customer) *model.Customer {
 	return &model.Customer{
 		ID:        customer.ID,
 		Info:      ToCustomerInfoFromRepo(customer.Info),
-		CreatedAt: customer.CreatedAt,
-		UpdatedAt: updatedAt,
+		CreatedAt: &customer.CreatedAt,
+		UpdatedAt: &updatedAt,
 	}
 }
 

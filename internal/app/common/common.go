@@ -9,6 +9,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type NotFoundError struct {
+	Message string
+}
+
+func (e *NotFoundError) Error() string {
+	return e.Message
+}
+
 func InitEnv() {
 	homedir := os.Getenv("HOME")
 	if err := godotenv.Load(homedir + "/.config/go/env/.env"); err != nil {

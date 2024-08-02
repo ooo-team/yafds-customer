@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -51,7 +52,7 @@ func (r *repository) GetDB() *sql.DB {
 	return r.db
 }
 
-func (r *repository) Create(ctx context.Context, customerID uint64, info *model.CustomerInfo) error {
+func (r *repository) Create(ctx context.Context, customerID uint32, info *model.CustomerInfo) error {
 	var time_ = time.Now()
 	repo_entity := repoModel.Customer{
 		ID: customerID,
@@ -104,15 +105,36 @@ func (r *repository) Create(ctx context.Context, customerID uint64, info *model.
 }
 
 // Get implements repository.CustomerRepository.
-func (r *repository) Get(ctx context.Context, customerID uint64) (*model.Customer, error) {
-	customer := &repoModel.Customer{
-		ID:        customerID,
-		Info:      repoModel.CustomerInfo{Phone: "+79999999999", Email: "email", Address: "address"},
-		CreatedAt: time.Now(),
-		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
+func (r *repository) Get(ctx context.Context, customerID uint32, need_metainfo bool) (*model.CustomerInfo, error) {
+
+	rows, err := r.GetDB().QueryContext(ctx,
+		`select c.phone,
+				c.email,
+				c.address
+			from customers c where c.id = $1`, customerID)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+	defer rows.Close()
+
+	var phone string
+	var email string
+	var address string
+
+	if !rows.Next() {
+		log.Println("Could not find customer")
+		return nil, &common.NotFoundError{Message: "Could not find customer"}
 	}
 
-	return converter.ToCustomerFromRepo(customer), nil
+	if err := rows.Scan(&phone, &email, &address); err != nil {
+		log.Println(err.Error())
+	}
+
+	info := repoModel.CustomerInfo{Phone: phone, Email: email, Address: address}
+
+	customer_info := converter.ToCustomerInfoFromRepo(info)
+	return &customer_info, nil
 }
 
 var _ def.CustomerRepository = (*repository)(nil)

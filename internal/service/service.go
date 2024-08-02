@@ -7,6 +7,6 @@ import (
 )
 
 type CustomerService interface {
-	Create(ctx context.Context, info *model.CustomerInfo) (string, error)
-	Get(ctx context.Context, uuid string) (*model.Customer, error)
+	Create(ctx context.Context, info *model.CustomerInfo) (uint32, error)
+	Get(ctx context.Context, uuid uint32, need_metainfo bool) (*model.Customer, error)
 }

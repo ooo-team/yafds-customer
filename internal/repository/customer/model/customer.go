@@ -6,7 +6,7 @@ import (
 )
 
 type Customer struct {
-	ID        uint64
+	ID        uint32
 	Info      CustomerInfo
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime

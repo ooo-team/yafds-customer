@@ -5,10 +5,10 @@ import (
 )
 
 type Customer struct {
-	ID        uint64
+	ID        uint32
 	Info      CustomerInfo
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }
 
 type CustomerInfo struct {
