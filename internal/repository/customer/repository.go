@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/lib/pq"
 	common "github.com/ooo-team/yafds-common/pkg"
 	commonRepo "github.com/ooo-team/yafds-common/pkg/repository"
 	model "github.com/ooo-team/yafds-customer/internal/model/customer"
