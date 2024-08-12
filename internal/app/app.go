@@ -9,14 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
-	common "github.com/ooo-team/yafds/pkg"
+	common "github.com/ooo-team/yafds-common/pkg"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
 )
-
-type HttpResponse struct {
-	Message string `json:"message"`
-	Status  int    `json:"status"`
-}
 
 type App struct {
 	httpServer      *http.Server

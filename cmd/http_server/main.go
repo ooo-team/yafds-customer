@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/ooo-team/yafds/internal/app"
-	common "github.com/ooo-team/yafds/pkg"
+	common "github.com/ooo-team/yafds-common/pkg"
+	"github.com/ooo-team/yafds-customer/internal/app"
 )
 
 func init() {

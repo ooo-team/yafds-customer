@@ -1,8 +1,8 @@
 package customer
 
 import (
-	"github.com/ooo-team/yafds/internal/repository"
-	def "github.com/ooo-team/yafds/internal/service"
+	"github.com/ooo-team/yafds-customer/internal/repository"
+	def "github.com/ooo-team/yafds-customer/internal/service"
 )
 
 var _ def.CustomerService = (*service)(nil)

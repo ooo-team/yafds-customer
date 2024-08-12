@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
 )
 
 type CustomerRepository interface {

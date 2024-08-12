@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
 )
 
 type CustomerService interface {

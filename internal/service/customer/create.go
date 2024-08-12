@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
 )
 
 func (s *service) Create(ctx context.Context, info *model.CustomerInfo) (uint32, error) {

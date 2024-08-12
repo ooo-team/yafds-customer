@@ -3,17 +3,16 @@ package customer
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	_ "github.com/lib/pq"
-	model "github.com/ooo-team/yafds/internal/model/customer"
-	def "github.com/ooo-team/yafds/internal/repository"
-	"github.com/ooo-team/yafds/internal/repository/customer/converter"
-	repoModel "github.com/ooo-team/yafds/internal/repository/customer/model"
-	common "github.com/ooo-team/yafds/pkg"
+	common "github.com/ooo-team/yafds-common/pkg"
+	commonRepo "github.com/ooo-team/yafds-common/pkg/repository"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
+	def "github.com/ooo-team/yafds-customer/internal/repository"
+	"github.com/ooo-team/yafds-customer/internal/repository/customer/converter"
+	repoModel "github.com/ooo-team/yafds-customer/internal/repository/customer/model"
 )
 
 type repository struct {
@@ -29,32 +28,15 @@ func (r *repository) GetDB() *sql.DB {
 	if r.db != nil {
 		return r.db
 	}
-	var err error
 
-	host := common.LoadEnvVar("dbHost")
-	port, err := strconv.Atoi(common.LoadEnvVar("dbPort"))
-	if err != nil {
-		panic("cannot convert string dbPort to int")
-	}
-	user := common.LoadEnvVar("dbUser")
-	password := common.LoadEnvVar("dbPassword")
-	dbname := common.LoadEnvVar("dbName")
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	r.db, err = sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
+	r.db = commonRepo.GetDB()
 
 	return r.db
 }
 
 func (r *repository) Create(ctx context.Context, customerID uint32, info *model.CustomerInfo) error {
 	var time_ = time.Now()
-	repo_entity := repoModel.Customer{
+	repoEntity := repoModel.Customer{
 		ID: customerID,
 		Info: repoModel.CustomerInfo{
 			Phone:   info.Phone,
@@ -82,10 +64,10 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 		address
 		)
 		values($1, $2, $3, $4)`,
-		repo_entity.ID,
-		repo_entity.Info.Phone,
-		repo_entity.Info.Email,
-		repo_entity.Info.Address,
+		repoEntity.ID,
+		repoEntity.Info.Phone,
+		repoEntity.Info.Email,
+		repoEntity.Info.Address,
 	)
 
 	if err != nil {
@@ -97,13 +79,13 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 		`insert into h_customers 
 		(
 		customer_id, 
-		created_at, 
-		modified_at
+		createdAt, 
+		modifiedAt
 		) 
 		values ($1, $2, $3)`,
-		repo_entity.ID,
-		repo_entity.CreatedAt,
-		repo_entity.UpdatedAt)
+		repoEntity.ID,
+		repoEntity.CreatedAt,
+		repoEntity.UpdatedAt)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -120,24 +102,26 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 // Get implements repository.CustomerRepository.
 func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Customer, error) {
 
-	rows, err := r.GetDB().QueryContext(ctx,
-		`select c.phone,
-				c.email,
-				c.address,
-				hc1.created_at,
-				hc.modified_at
-		   from customers c 
-		   join h_customers hc1 
-			 on hc1.customer_id = c.id
-			and hc1.created_at is not null
-		   join h_customers hc 
-			 on hc.customer_id = c.id
-			and coalesce(hc.modified_at, 
-			             TIMESTAMP '1900-01-01 00:00:00') = (select max(coalesce(hc2.modified_at, TIMESTAMP '1900-01-01 00:00:00'))
-															   from h_customers hc2 
-															  where hc2.customer_id = hc.customer_id)
+	queryText := `
+	select c.phone,
+			c.email,
+			c.address,
+			hc1.createdAt,
+			hc.modifiedAt
+		from customers c 
+		join h_customers hc1 
+			on hc1.customer_id = c.id
+		and hc1.createdAt is not null
+		join h_customers hc 
+			on hc.customer_id = c.id
+		and coalesce(hc.modifiedAt, 
+						TIMESTAMP '0001-01-01 00:00:00') = (select max(coalesce(hc2.modifiedAt, TIMESTAMP '0001-01-01 00:00:00'))
+															from h_customers hc2 
+															where hc2.customer_id = hc.customer_id)
 
-		  where c.id = $1`, customerID)
+		  where c.id = $1`
+	log.Printf(queryText, customerID)
+	rows, err := r.GetDB().QueryContext(ctx, queryText, customerID)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -147,8 +131,8 @@ func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Custome
 	var phone string
 	var email string
 	var address string
-	var created_at time.Time
-	var modified_at sql.NullTime
+	var createdAt time.Time
+	var modifiedAt sql.NullTime
 
 	if !rows.Next() {
 		err = &common.NotFoundError{Message: "Could not find customer"}
@@ -156,7 +140,7 @@ func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Custome
 		return nil, err
 	}
 
-	if err := rows.Scan(&phone, &email, &address, &created_at, &modified_at); err != nil {
+	if err := rows.Scan(&phone, &email, &address, &createdAt, &modifiedAt); err != nil {
 		log.Println(err.Error())
 	}
 
@@ -165,8 +149,8 @@ func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Custome
 	customer := converter.ToCustomerFromRepo(&repoModel.Customer{
 		ID:        customerID,
 		Info:      info,
-		CreatedAt: created_at,
-		UpdatedAt: modified_at,
+		CreatedAt: createdAt,
+		UpdatedAt: modifiedAt,
 	})
 
 	return customer, nil

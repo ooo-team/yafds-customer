@@ -3,10 +3,9 @@
 -- Drop table
 
 DROP TABLE IF EXISTS public.customers;
-go;
 
 CREATE TABLE public.customers (
-	id int4 NOT NULL,
+	id int8 NOT NULL,
 	phone varchar(20) NULL,
 	email varchar NULL,
 	address varchar NULL
@@ -21,11 +20,10 @@ CREATE UNIQUE INDEX xie2customers ON public.customers USING btree (email);
 -- Drop table
 
 DROP TABLE IF EXISTS public.h_customers;
-go;
 
 CREATE TABLE public.h_customers (
-	customer_id int4 NOT NULL,
-	created_at varchar NOT NULL,
-	modified_at varchar NULL
+	customer_id int8 NOT NULL,
+	created_at timestamp NOT NULL,
+	modified_at timestamp NULL
 );
 CREATE UNIQUE INDEX xpkhcustomers ON public.h_customers USING btree (customer_id, modified_at);

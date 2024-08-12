@@ -3,8 +3,8 @@ package converter
 import (
 	"time"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
-	repoModel "github.com/ooo-team/yafds/internal/repository/customer/model"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
+	repoModel "github.com/ooo-team/yafds-customer/internal/repository/customer/model"
 )
 
 func ToCustomerFromRepo(customer *repoModel.Customer) *model.Customer {

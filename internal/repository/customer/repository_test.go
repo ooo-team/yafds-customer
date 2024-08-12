@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	model "github.com/ooo-team/yafds/internal/model/customer"
+	model "github.com/ooo-team/yafds-customer/internal/model/customer"
 	"github.com/stretchr/testify/assert"
 )
 

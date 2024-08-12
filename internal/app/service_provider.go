@@ -1,10 +1,10 @@
 package app
 
 import (
-	"github.com/ooo-team/yafds/internal/repository"
-	customerRepository "github.com/ooo-team/yafds/internal/repository/customer"
-	"github.com/ooo-team/yafds/internal/service"
-	customerService "github.com/ooo-team/yafds/internal/service/customer"
+	"github.com/ooo-team/yafds-customer/internal/repository"
+	customerRepository "github.com/ooo-team/yafds-customer/internal/repository/customer"
+	"github.com/ooo-team/yafds-customer/internal/service"
+	customerService "github.com/ooo-team/yafds-customer/internal/service/customer"
 )
 
 type serviceProvider struct {
