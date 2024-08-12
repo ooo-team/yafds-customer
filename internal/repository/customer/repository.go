@@ -78,8 +78,8 @@ func (r *repository) Create(ctx context.Context, customerID uint32, info *model.
 		`insert into h_customers 
 		(
 		customer_id, 
-		createdAt, 
-		modifiedAt
+		created_at, 
+		modified_at
 		) 
 		values ($1, $2, $3)`,
 		repoEntity.ID,
@@ -105,16 +105,16 @@ func (r *repository) Get(ctx context.Context, customerID uint32) (*model.Custome
 	select c.phone,
 			c.email,
 			c.address,
-			hc1.createdAt,
-			hc.modifiedAt
+			hc1.created_at,
+			hc.modified_at
 		from customers c 
 		join h_customers hc1 
 			on hc1.customer_id = c.id
-		and hc1.createdAt is not null
+		and hc1.created_at is not null
 		join h_customers hc 
 			on hc.customer_id = c.id
-		and coalesce(hc.modifiedAt, 
-						TIMESTAMP '0001-01-01 00:00:00') = (select max(coalesce(hc2.modifiedAt, TIMESTAMP '0001-01-01 00:00:00'))
+		and coalesce(hc.modified_at, 
+						TIMESTAMP '0001-01-01 00:00:00') = (select max(coalesce(hc2.modified_at, TIMESTAMP '0001-01-01 00:00:00'))
 															from h_customers hc2 
 															where hc2.customer_id = hc.customer_id)
 
